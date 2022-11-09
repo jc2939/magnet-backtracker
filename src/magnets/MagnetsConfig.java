@@ -76,7 +76,9 @@ public class MagnetsConfig implements Configuration, IMagnetTest {
             this.amountOfCols = Integer.parseInt(fields[1]);
             this.board = new char[amountOfRows][amountOfCols];
             this.grid = new char[amountOfRows][amountOfCols];
+            System.out.println("Rows: " + amountOfRows + ", Columns: " + amountOfCols);
             fields = in.readLine().split("\\s+");
+            //populate positive row counts with integers
             this.posRow = new int[amountOfRows];
             for (int i = 0; i < amountOfRows; i++)
             {
@@ -84,19 +86,20 @@ public class MagnetsConfig implements Configuration, IMagnetTest {
             }
 
             fields = in.readLine().split("\\s+");
+            //populate positive column counts with integers
             this.posCol = new int[amountOfCols];
             for (int i = 0; i < amountOfCols; i++)
             {
                 this.posCol[i] = Integer.parseInt(fields[i]);
             }
-
+            //populate negative row counts with integers
             fields = in.readLine().split("\\s+");
             this.negRow = new int[amountOfRows];
             for (int i = 0; i < amountOfRows; i++)
             {
                 this.negRow[i] = Integer.parseInt(fields[i]);
             }
-
+            //populate negative column counts with integers
             fields = in.readLine().split("\\s+");
             this.negCol = new int[amountOfCols];
             for (int i = 0; i < amountOfCols; i++)
@@ -104,7 +107,7 @@ public class MagnetsConfig implements Configuration, IMagnetTest {
                 this.negCol[i] = Integer.parseInt(fields[i]);
             }
 
-
+            //populate grid with pairs
             for (int row = 0; row < amountOfRows; row++) {
                 fields = in.readLine().split("\\s+");
                 char[] c = new char[amountOfCols];
@@ -113,11 +116,72 @@ public class MagnetsConfig implements Configuration, IMagnetTest {
                 for (int col = 0; col < amountOfCols; col++)
                     grid[row][col] = c[col];
             }
+            System.out.println("Pairs:");
+            for (int row = 0; row < grid.length; row++)
+            {
+                if (row != 0)
+                    System.out.println();
+                for (int col = 0; col < grid[row].length; col++)
+                    System.out.print(grid[row][col] + " ");
+            }
+            System.out.println();
 
+            //initialize board to be empty
             for (int row = 0; row < amountOfRows; row++)
                 for (int col = 0; col < amountOfCols; col++)
                     board[row][col] = EMPTY;
 
+            //printing out initial config
+            System.out.println("Initial config:");
+            //top
+            System.out.print("+ ");
+            for (int i = 0; i < posCol.length; i++)
+            {
+                if (posCol[i] == -1)
+                    System.out.print("  ");
+                else
+                    System.out.print(posCol[i] + " ");
+            }
+            System.out.println();
+            System.out.print("  ");
+            for (int i = 0; i < (posCol.length * 2) - 1; i++)
+                System.out.print("-");
+            System.out.println();
+            //middle
+            for (int row = 0; row < amountOfRows; row++)
+            {
+                if (posRow[row] == -1)
+                    System.out.print(" |");
+                else
+                    System.out.print(posRow[row] + "|");
+                for (int col = 0; col < amountOfCols; col++)
+                {
+                    if (col == amountOfCols - 1 && negRow[row] != -1)
+                        System.out.print(".|" + negRow[row] + "\n");
+                    else if (col == amountOfCols - 1 && negRow[row] == -1)
+                        System.out.print(".|\n");
+                    else
+                        System.out.print(". ");
+                }
+            }
+            //bottom
+            System.out.print("  ");
+            for (int i = 0; i < (posCol.length * 2) - 1; i++)
+                System.out.print("-");
+            System.out.println();
+            System.out.print("  ");
+            for (int i = 0; i < negCol.length; i++)
+            {
+                if (negCol[i] == -1)
+                    System.out.print("  ");
+                else
+                    System.out.print(negCol[i] + " ");
+            }
+            System.out.print(" ");
+            System.out.println("-");
+            System.out.println();
+
+            //initialize cursor to be at (0, -1)
             this.cursorRow = 0;
             this.cursorCol = -1;
 
@@ -135,8 +199,13 @@ public class MagnetsConfig implements Configuration, IMagnetTest {
        this.amountOfCols = other.amountOfCols;
        this.cursorRow = other.cursorRow;
        this.cursorCol = other.cursorCol;
+       this.grid = other.grid;
+       this.posRow = other.posRow;
+       this.posCol = other.posCol;
+       this.negRow = other.negRow;
+       this.negCol = other.negCol;
 
-       this.cursorCol += 1;
+       this.cursorCol++;
        if (this.cursorCol == amountOfCols)
        {
            this.cursorRow += 1;
@@ -190,14 +259,82 @@ public class MagnetsConfig implements Configuration, IMagnetTest {
      */
     @Override
     public boolean isValid() {
-        // TODO
-        return false;
+        int posCount = 0;
+        int negCount = 0;
+        if (grid[cursorRow][cursorCol] == RIGHT) {
+            if (board[cursorRow][cursorCol] == POS && board[cursorRow][cursorCol - 1] != NEG)
+            {
+                return false; //if NEG is not next to POS in the pair
+            }
+            else if (board[cursorRow][cursorCol] == NEG && board[cursorRow][cursorCol - 1] != POS)
+            {
+                return false; //if POS is not next to NEG in the pair
+            }
+            else if (board[cursorRow][cursorCol] == BLANK && board[cursorRow][cursorCol - 1] != BLANK)
+            {
+                return false; //if BLANK is not next to BLANK in the pair
+            }
+        }
+        if (grid[cursorRow][cursorCol] == BOTTOM) {
+            if (board[cursorRow][cursorCol] == POS && board[cursorRow - 1][cursorCol] != NEG)
+            {
+                return false; //if NEG is not on top of POS in the pair
+            }
+            else if (board[cursorRow][cursorCol] == NEG && board[cursorRow - 1][cursorCol] != POS)
+            {
+                return false; //if POS is not on top of NEG in the pair
+            }
+            else if (board[cursorRow][cursorCol] == BLANK && board[cursorRow - 1][cursorCol] != BLANK)
+            {
+                return false; //if BLANK is not on top of BLANK in the pair
+            }
+        }
+        if (cursorRow > 0 && cursorCol > 0)
+        {
+            if (board[cursorRow][cursorCol] == POS && (board[cursorRow - 1][cursorCol] == POS || board[cursorRow][cursorCol - 1] == POS))
+                return false; //if POS is next to a POS
+            else if (board[cursorRow][cursorCol] == NEG && (board[cursorRow - 1][cursorCol] == NEG || board[cursorRow][cursorCol - 1] == NEG))
+                return false; //if NEG is next to a NEG
+        }
+        //check to see if there are valid number of POS and NEG in each row
+        if (cursorCol == amountOfCols - 1)
+        {
+            for (int col = 0; col < amountOfCols; col++)
+            {
+                if (board[cursorRow][col] == POS)
+                    posCount++;
+                if (board[cursorRow][col] == NEG)
+                    negCount++;
+            }
+            if ((posRow[cursorRow] != -1 && posRow[cursorRow] != posCount) || (negRow[cursorRow] != -1 && negRow[cursorRow] != negCount))
+                return false;
+        }
+        //check to see if there are valid number of POS and NEG in each column
+        if (cursorRow == amountOfRows - 1)
+        {
+            posCount = 0;
+            negCount = 0;
+            for (int row = 0; row < amountOfRows; row++)
+            {
+                if (board[row][cursorCol] == POS)
+                    posCount++;
+                if (board[row][cursorCol] == NEG)
+                    negCount++;
+            }
+            if ((posCol[cursorCol] != -1 && posCol[cursorCol] != posCount) || (negCol[cursorCol] != -1 && negCol[cursorCol] != negCount))
+                return false;
+        }
+        return true;
     }
 
+    /**
+     * This method checks to see if the cursor is in the last row and the
+     * last column (last grind in the 2D array)
+     * @return true if goal is reached, false otherwise
+     */
     @Override
     public boolean isGoal() {
-        // TODO
-        return false;
+        return this.cursorRow == amountOfRows - 1 && this.cursorCol == amountOfCols - 1;
     }
 
     /**
