@@ -19,7 +19,7 @@ import java.util.List;
  * - Polarity checked each time a new cell is populated
  * - When last column or row is populated, the pos/neg counts are checked
  *
- * @author RIT CS
+ * @author Jerry Chen
  */
 public class MagnetsConfig implements Configuration, IMagnetTest {
     /** a cell that has not been assigned a value yet */
@@ -51,10 +51,6 @@ public class MagnetsConfig implements Configuration, IMagnetTest {
     private int[] posCol;
     private int[] negRow;
     private int[] negCol;
-
-
-    // TODO
-    // add private state here
 
     /**
      * Read in the magnet puzzle from the filename.  After reading in, it should display:
@@ -102,8 +98,7 @@ public class MagnetsConfig implements Configuration, IMagnetTest {
             //populate negative column counts with integers
             fields = in.readLine().split("\\s+");
             this.negCol = new int[amountOfCols];
-            for (int i = 0; i < amountOfCols; i++)
-            {
+            for (int i = 0; i < amountOfCols; i++) {
                 this.negCol[i] = Integer.parseInt(fields[i]);
             }
 

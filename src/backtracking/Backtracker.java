@@ -43,7 +43,7 @@ public class Backtracker {
     }
 
     /**
-     * Try find a solution, if one exists, for a given configuration.
+     * Try to find a solution, if one exists, for a given configuration.
      *
      * @param config A valid configuration
      * @return A solution config, or null if no solution
